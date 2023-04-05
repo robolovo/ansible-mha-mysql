@@ -17,15 +17,15 @@
 
   - name: Copy publickey to authorized_keys file
     lineinfile:
-      dest: {{ mha_base_path }}/authorized_keys
+      dest: ~/.ssh/authorized_keys
       line: "{{ pub_key.stdout }}"
 
   - name: Copy privatekey to remote server
     copy:
       src: ./mhaKey
-      dest: {{ mha_base_path }}/mhaKey
+      dest: "{{ mha_base_path }}/mhaKey"
 
   - name: Copy publickey to remote server
     copy:
       src: ./mhaKey.pub
-      dest: {{ mha_base_path }}/mhaKey.pub
+      dest: "{{ mha_base_path }}/mhaKey.pub"
