@@ -1,0 +1,17 @@
+---
+ssh_user: deploy
+
+mysql_master_host: "172.17.0.2"
+mysql_replica_host: "172.17.0.4 172.17.0.5"
+mysql_base_dir: /mysql
+mysql_root_password: Durtnlchrhtn@1
+mysql_mha_username: mha
+mysql_mha_password: Masterha@1
+mysql_mha_cidr: "%"
+mysql_master_connect_retry: 10
+
+mha_master_host_name: "172.17.0.6"
+mha_base_path: /mha
+
+mha_conf_path: /mha/mha.cnf
+mha_ssh_user: root

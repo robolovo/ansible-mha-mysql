@@ -1,0 +1,16 @@
+---
+
+- hosts: mha_nodes
+  remote_user: root
+  roles:
+    - ssh
+    - mysql
+    - mha-node
+    - xtrabackup
+
+- hosts: mha_manager
+  remote_user: root
+  roles:
+    - ssh
+    - mha-node
+    - mha-manager

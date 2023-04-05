@@ -1,0 +1,31 @@
+---
+  - name: Generate ssh key
+    connection: local
+    command: "ssh-keygen -b 2048 -t rsa -f ./mhaKey -q -N ''"
+    ignore_errors: yes
+    run_once: true
+
+  - name: Read publickey
+    connection: local
+    command: "cat ./mhaKey.pub"
+    register: pub_key
+    run_once: true
+
+  - name: Create mha directory
+    shell: |
+      mkdir -p {{ mha_base_path }}
+
+  - name: Copy publickey to authorized_keys file
+    lineinfile:
+      dest: {{ mha_base_path }}/authorized_keys
+      line: "{{ pub_key.stdout }}"
+
+  - name: Copy privatekey to remote server
+    copy:
+      src: ./mhaKey
+      dest: {{ mha_base_path }}/mhaKey
+
+  - name: Copy publickey to remote server
+    copy:
+      src: ./mhaKey.pub
+      dest: {{ mha_base_path }}/mhaKey.pub

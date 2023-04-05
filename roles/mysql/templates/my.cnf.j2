@@ -1,0 +1,31 @@
+[mysqld]
+bind-address   = 0.0.0.0
+port           = 3306
+default_authentication_plugin = mysql_native_password
+character-set-server = utf8mb4
+collation-server = utf8mb4_0900_ai_ci
+basedir = {{ mysql_base_dir }}
+datadir = {{ mysql_base_dir }}/data
+relay-log = {{ mysql_base_dir }}/data/mysql-relay-bin
+relay-log-info-file = {{ mysql_base_dir }}/data/mysql-relay-log.info
+relay_log_purge = 0
+relay_log_info_repository = FILE
+master_info_repository = FILE
+socket = {{ mysql_base_dir }}/data/mysql.sock
+pid-file = {{ mysql_base_dir }}/run/mysqld.pid
+log-error = {{ mysql_base_dir }}/log/err-mysql.log
+long_query_time = 30
+slow_query_log_file = {{ mysql_base_dir }}/log/slow.log
+slow_query_log = ON
+
+[client]
+port = 3306
+socket = {{ mysql_base_dir }}/data/mysql.sock
+#default-character-set=utf8mb4 #disabled due to mysqlbinlog (mha)
+
+[manager]
+port = 3306
+socket = {{ mysql_base_dir }}/data/mysql.sock
+pid-file = {{ mysql_base_dir }}/run/mysqld.pid
+
+!includedir /etc/my.cnf.d/

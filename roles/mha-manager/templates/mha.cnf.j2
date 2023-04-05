@@ -1,0 +1,23 @@
+[server default]
+user = {{ mysql_mha_username }}
+password = {{ mysql_mha_password }}
+ssh_options = "-i {{ mha_base_path }}/mhaKey"
+ssh_user = {{ mha_ssh_user }}
+
+# working directory on the manager
+manager_workdir = {{ mha_base_path }}/log
+# working directory on MySQL servers
+remote_workdir = {{ mha_base_path }}/log
+
+#binary bin log path
+master_binlog_dir = {{ mysql_base_dir }}/data
+
+[server1]
+hostname={{ mysql_master_host.split()[0] }}
+candidate_master = 1
+[server2]
+hostname={{ mysql_replica_host.split()[0] }}
+candidate_master = 1
+[server3]
+hostname={{ mysql_replica_host.split()[1] }}
+candidate_master = 1
