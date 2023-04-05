@@ -24,8 +24,14 @@
     copy:
       src: ./mhaKey
       dest: "{{ mha_base_path }}/mhaKey"
+      owner: root
+      group: root
+      mode: '0600'
 
   - name: Copy publickey to remote server
     copy:
       src: ./mhaKey.pub
       dest: "{{ mha_base_path }}/mhaKey.pub"
+      owner: root
+      group: root
+      mode: '0600'

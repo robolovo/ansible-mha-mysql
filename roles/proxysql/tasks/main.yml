@@ -1,0 +1,79 @@
+---
+  - name: Install proxysql
+    get_url:
+      url: "https://github.com/sysown/proxysql/releases/download/v2.5.1/proxysql-2.5.1-1-centos7.aarch64.rpm"
+      dest: /home/user/proxysql-2.5.1-1.rpm
+      mode: '0660'
+
+  - name: Install a package
+    yum:
+      name:
+        - /home/user/proxysql-2.5.1-1.rpm
+      state: present
+
+  - name: Create proxysql base directory
+    shell: |
+      mkdir -p {{ proxysql_base_dir }}/data
+      mkdir -p {{ proxysql_base_dir }}/log
+
+  - name: Create proxysql monitoring/application user
+    shell: |
+      function find_my_ip(){
+        echo $(ifconfig "$1" |grep -F "inet " | awk '{print $2}')
+      }
+      
+      function add_user_to_mysql_remotely(){
+        CREATED="$(mysql -h $1 -u {{ mysql_mha_username }} -p{{ mysql_mha_password }} -se "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$2' and host = '$4')")"
+        if [[ $CREATED -eq 0 ]]; then
+          mysql -h $1 -u {{ mysql_mha_username }} -p{{ mysql_mha_password }} -e "create user '$2'@'$4' identified by '$3'"
+        fi
+      }
+      
+      IP_ADDR=$(find_my_ip eth0)
+      add_user_to_mysql_remotely {{ mysql_master_host }} {{ proxysql_mysql_monitor_username }} {{ proxysql_mysql_monitor_password }} ${IP_ADDR}
+      add_user_to_mysql_remotely {{ mysql_master_host }} {{ proxysql_mysql_username }} {{ proxysql_mysql_password }} ${IP_ADDR}
+      
+      GRANT_COMMAND="mysql -u root -p{{ mysql_root_password }} -e \"grant USAGE,REPLICATION CLIENT on *.* to '{{ proxysql_mysql_monitor_username }}'@'${IP_ADDR}';grant SELECT, DELETE, UPDATE, EXECUTE, INSERT, DROP, ALTER, CREATE,REFERENCES, INDEX on *.* to '{{ proxysql_mysql_username }}'@'${IP_ADDR}' ;flush privileges;\""
+
+      echo "$GRANT_COMMAND"
+      ssh -i {{ mha_base_path }}/mhaKey -o StrictHostKeyChecking=no {{ ssh_user }}@{{ mysql_master_host }} "$GRANT_COMMAND"
+
+  - name: Create default schema
+    shell: |
+      mysql -h {{ mysql_master_host }} -u {{ mysql_mha_username }} -p{{ mysql_mha_password }} -e "CREATE DATABASE IF NOT EXISTS {{ proxysql_mysql_default_schema }}"
+
+  - name:
+    shell: |
+      NUM_CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
+      echo $((NUM_CORES<=4 ? 4:NUM_CORES ))
+    register: num_threads
+
+  - name:
+    shell: |   
+      echo $(mysql -h {{ mysql_master_host }} -u {{ mysql_mha_username }} -p{{ mysql_mha_password }} -se "select version()" | awk '{print $1}')
+    register: mysql_version
+
+  - name: Inject proxysql.cnf
+    template:
+      src: proxysql.cnf
+      dest: /etc/proxysql.cnf
+
+  - name: Inject proxysql.service
+    template:
+      src: proxysql.service
+      dest: /etc/systemd/system/proxysql.service
+
+  - name: Reload systemd daemon
+    systemd:
+      daemon_reload: true
+
+  - name: Chown proxysql base dir
+    shell: |
+      chown -R proxysql:proxysql {{ proxysql_base_dir }}
+
+  - name: Start proxysql
+    systemd:
+      state: started
+      name: proxysql
+      enabled: true
+    become: yes

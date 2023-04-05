@@ -1,5 +1,5 @@
 ---
-ssh_user: deploy
+ssh_user: root
 
 mysql_master_host: "172.17.0.2"
 mysql_replica_host: "172.17.0.4 172.17.0.5"
@@ -12,6 +12,18 @@ mysql_master_connect_retry: 10
 
 mha_master_host_name: "172.17.0.6"
 mha_base_path: /mha
-
 mha_conf_path: /mha/mha.cnf
 mha_ssh_user: root
+
+proxysql_base_dir: /proxysql
+proxysql_rest_api_enabled: true
+proxysql_rest_api_port: 10080
+proxysql_admin_username: "admin"
+proxysql_admin_password: "durtnlchrhtn@1"
+proxysql_admin_port: 10032
+proxysql_mysql_monitor_username: "monitor"
+proxysql_mysql_monitor_password: "monitor"
+proxysql_mysql_username: "proxysql"
+proxysql_mysql_password: "proxysql"
+proxysql_mysql_port: 10100
+proxysql_mysql_default_schema: default_schema
