@@ -12,6 +12,7 @@
   remote_user: root
   roles:
     - ssh
+    - mysql
     - mha-node
     - mha-manager
     - proxysql
