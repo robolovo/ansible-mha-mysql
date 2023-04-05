@@ -1,16 +1,16 @@
 ---
   - name: Copy percona xtrabackup
     copy:
-      src: percona-xtrabackup-80-8.0.31-24.1.el7.x86_64.rpm
-      dest: /home/user/percona-xtrabackup-80-8.0.31-24.1.el7.x86_64.rpm
+      src: percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
+      dest: /home/user/percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
       owner: root
       group: root
       mode: '0644'
 
   - name: Copy qpress
     copy:
-      src: qpress-11-1.el7.x86_64.rpm
-      dest: /home/user/qpress-11-1.el7.x86_64.rpm
+      src: qpress-20220819-3.el8.aarch64.rpm
+      dest: /home/user/qpress-20220819-3.el8.aarch64.rpm
       owner: root
       group: root
       mode: '0644'
@@ -22,5 +22,5 @@
     loop:
       - socat
       - pigz
-      - /home/user/qpress-11-1.el7.x86_64.rpm
-      - /home/user/percona-xtrabackup-80-8.0.31-24.1.el7.x86_64.rpm
+      - /home/user/qpress-20220819-3.el8.aarch64.rpm
+      - /home/user/percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
