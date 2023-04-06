@@ -72,8 +72,13 @@
       chown -R proxysql:proxysql {{ proxysql_base_dir }}
 
   - name: Start proxysql
-    systemd:
-      state: started
-      name: proxysql
-      enabled: true
-    become: yes
+    shell: |
+      /usr/bin/proxysql --idle-threads -c /etc/proxysql.cnf
+
+#  systemd로 실행하면 에러가 발생해서 직접 실행
+#  - name: Start proxysql
+#    systemd:
+#      state: started
+#      name: proxysql
+#      enabled: true
+#    become: yes
