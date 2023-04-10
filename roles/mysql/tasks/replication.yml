@@ -28,11 +28,8 @@
     login_host: "localhost"
     login_user: "root"
     login_password: "{{ mysql_root_password }}"
+  delegate_to: "{{ mysql_master_host }}"
   register: master
-  when: inventory_hostname == item
-  with_items:
-    - "{{ mysql_replica_host.split() }}"
-  tags: ['skip_ansible_galaxy']
 
 - debug:
     var: master
@@ -65,4 +62,3 @@
   when: inventory_hostname == item
   with_items:
     - "{{ mysql_replica_host.split() }}"
-  tags: ['skip_ansible_galaxy']
