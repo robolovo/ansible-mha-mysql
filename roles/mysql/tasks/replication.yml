@@ -1,6 +1,7 @@
 ---
 - name: Create mha user
   mysql_user:
+    config_file: "/etc/my.cnf"
     login_host: "localhost"
     login_user: "root"
     login_password: "{{ mysql_root_password }}"
@@ -23,6 +24,7 @@
 - name: Check master replication status
   mysql_replication:
     mode: getprimary
+    config_file: "/etc/my.cnf"
     login_host: "localhost"
     login_user: "root"
     login_password: "{{ mysql_root_password }}"
@@ -35,6 +37,7 @@
 - name: Configure replication on the slave
   mysql_replication:
     mode: changeprimary
+    config_file: "/etc/my.cnf"
     login_host: "localhost"
     login_user: "root"
     login_password: "{{ mysql_root_password }}"
@@ -52,6 +55,7 @@
 - name: Start replication
   mysql_replication:
     mode: startreplica
+    config_file: "/etc/my.cnf"
     login_host: "localhost"
     login_user: "root"
     login_password: "{{ mysql_root_password }}"
