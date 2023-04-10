@@ -2,7 +2,7 @@
 - name: Generate ssh key
   ansible.builtin.command: "ssh-keygen -b 2048 -t rsa -f ./mhaKey -q -N ''"
   connection: local
-  ignore_errors: yes
+  ignore_errors: true
   run_once: true
 
 - name: Read publickey
