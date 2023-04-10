@@ -1,45 +1,5 @@
 ---
-  - name: Install mha node
-    get_url:
-      url: "https://github.com/yoshinorim/mha4mysql-manager/releases/download/v0.58/mha4mysql-manager-0.58-0.el7.centos.noarch.rpm"
-      dest: /home/user/mha4mysql-manager.rpm
-      mode: '0660'
+- ansible.builtin.include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
 
-  - name: Copy perl rpm dependencies
-    copy:
-      src: "{{ item }}"
-      dest: /home/user/
-    loop:
-      - perl-Email-Date-Format-1.002-15.el7.noarch.rpm
-      - perl-Log-Dispatch-2.41-1.el7.1.noarch.rpm
-      - perl-Mail-Sender-0.8.23-1.el7.noarch.rpm
-      - perl-Mail-Sendmail-0.79-21.el7.noarch.rpm
-      - perl-MIME-Lite-3.030-1.el7.noarch.rpm
-      - perl-MIME-Types-1.38-2.el7.noarch.rpm
-      - perl-Parallel-ForkManager-1.18-2.el7.noarch.rpm
-
-  - name: Install perl dependencies
-    yum:
-      name: "{{ item }}"
-      state: present
-    loop:
-      - /home/user/perl-Parallel-ForkManager-1.18-2.el7.noarch.rpm
-      - /home/user/perl-Mail-Sendmail-0.79-21.el7.noarch.rpm
-      - /home/user/perl-Mail-Sender-0.8.23-1.el7.noarch.rpm
-      - /home/user/perl-MIME-Types-1.38-2.el7.noarch.rpm
-      - /home/user/perl-Email-Date-Format-1.002-15.el7.noarch.rpm
-      - /home/user/perl-MIME-Lite-3.030-1.el7.noarch.rpm
-      - /home/user/perl-Log-Dispatch-2.41-1.el7.1.noarch.rpm
-
-  - name: Install a package
-    yum:
-      name:
-        - /home/user/mha4mysql-manager.rpm
-      state: present
-
-  - name: Inject mha config
-    template:
-      src: mha.cnf.j2
-      dest: "{{ mha_conf_path }}"
-    notify:
-      - Start mha manager
+- ansible.builtin.include_tasks: configure.yml

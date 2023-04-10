@@ -1,0 +1,7 @@
+---
+- name: Inject mha config
+  ansible.builtin.template:
+    src: mha.cnf.j2
+    dest: "{{ mha_conf_path }}"
+  notify:
+    - Start mha manager

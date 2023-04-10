@@ -1,0 +1,61 @@
+---
+- name: Create mha user
+  mysql_user:
+    login_host: "localhost"
+    login_user: "root"
+    login_password: "{{ mysql_root_password }}"
+    host: "{{ mysql_mha_cidr }}"
+    name: "{{ mysql_mha_username }}"
+    password: "{{ mysql_mha_password }}"
+    priv: "*.*:ALL,GRANT"
+    state: present
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_master_host.split() }}"
+    - "{{ mysql_replica_host.split() }}"
+
+- name: Set readonly secondary replication
+  ansible.builtin.shell: |
+    mysql -u root -p{{ mysql_root_password }} -e "SET GLOBAL read_only=1"
+  when: inventory_hostname == item
+  with_items: "{{ mysql_replica_host.split() }}"
+
+- name: Check master replication status
+  mysql_replication:
+    mode: getprimary
+    login_host: "localhost"
+    login_user: "root"
+    login_password: "{{ mysql_root_password }}"
+  register: master
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_replica_host.split() }}"
+  tags: ['skip_ansible_galaxy']
+
+- name: Configure replication on the slave
+  mysql_replication:
+    mode: changeprimary
+    login_host: "localhost"
+    login_user: "root"
+    login_password: "{{ mysql_root_password }}"
+    master_host: "{{ mysql_master_host }}"
+    master_port: 3306
+    master_user: "{{ mysql_mha_username }}"
+    master_password: "{{ mysql_mha_password }}"
+    master_log_file: "{{ master.File }}"
+    master_log_pos: "{{ master.Position }}"
+  ignore_errors: true
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_replica_host.split() }}"
+
+- name: Start replication
+  mysql_replication:
+    mode: startreplica
+    login_host: "localhost"
+    login_user: "root"
+    login_password: "{{ mysql_root_password }}"
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_replica_host.split() }}"
+  tags: ['skip_ansible_galaxy']

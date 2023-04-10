@@ -1,35 +1,5 @@
 ---
-  - name: Install mha node
-    get_url:
-      url: "https://github.com/yoshinorim/mha4mysql-node/releases/download/v0.58/mha4mysql-node-0.58-0.el7.centos.noarch.rpm"
-      dest: /home/user/mha4mysql-node.rpm
-      mode: '0660'
+- ansible.builtin.include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
 
-  - name: Install a package
-    yum:
-      name:
-        - /home/user/mha4mysql-node.rpm
-      state: present
-
-  - name: Add mha user to group mysql
-    when: inventory_hostname == item
-    with_items:
-      - "{{ mysql_master_host.split() }}"
-      - "{{ mysql_replica_host.split() }}"
-    shell: |
-      if id -u "{{ mha_ssh_user }}" >/dev/null 2>&1; then
-          echo 'MHA User Already Exists'
-      else
-      	echo 'Adding MHA user to group mysql'
-        adduser --no-create-home {{ mha_ssh_user }}
-      fi
-      usermod -a -G mysql {{ mha_ssh_user }}
-
-  - name: Create mha directory and copy mha ssh key
-    when: inventory_hostname == item
-    with_items:
-      - "{{ mysql_master_host.split() }}"
-      - "{{ mysql_replica_host.split() }}"
-    shell: |
-      mkdir -p {{ mha_base_path }}/log
-      chown -R {{ mha_ssh_user }}:{{ mha_ssh_user }} {{ mha_base_path }}
+- ansible.builtin.include_tasks: configure.yml

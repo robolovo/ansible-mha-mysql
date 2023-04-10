@@ -1,0 +1,51 @@
+---
+#- name: Ensure server_id.ini file exists
+#  ansible.builtin.file:
+#    path: "/home/user/server_id.ini"
+#    state: directory
+#    owner: root
+#    group: root
+#    mode: 0666
+
+- name: Get last server id
+  ansible.builtin.shell: |
+    cat /home/user/server_id.ini
+  register: last_mysql_server_id
+  check_mode: no
+  delegate_to: localhost
+  tags:
+    - server-id
+
+- name: Get new server id
+  ansible.builtin.shell: |
+    echo "$(({{ last_mysql_server_id.stdout }}+1))"
+  register: new_mysql_server_id
+  check_mode: no
+  delegate_to: localhost
+  tags:
+    - server-id
+
+- name: Save new server id
+  ansible.builtin.shell: |
+    echo -n "{{ new_mysql_server_id.stdout }}" > /home/user/server_id.ini
+  check_mode: no
+  delegate_to: localhost
+  tags:
+    - server-id
+
+- debug:
+    var: new_mysql_server_id.stdout
+  tags:
+    - server-id
+
+- name: Replace conf file with template
+  ansible.builtin.template:
+    src: server_id.cnf.j2
+    dest: /etc/my.cnf.d/server_id.cnf
+  vars:
+    server_id: "{{ new_mysql_server_id.stdout }}"
+
+- name: Restart mysql
+  ansible.builtin.service:
+    name: mysqld
+    state: restarted

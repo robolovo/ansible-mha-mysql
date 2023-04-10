@@ -1,0 +1,23 @@
+---
+- name: Add mha user and append it to group mysql
+  ansible.builtin.user:
+    name: "{{ mha_ssh_user }}"
+    append: true
+    groups: mysql
+    create_home: false
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_master_host.split() }}"
+    - "{{ mysql_replica_host.split() }}"
+
+- name: Create mha directory and copy mha ssh key
+  ansible.builtin.file:
+    path: "{{ mha_base_path }}/log"
+    state: directory
+    owner: "{{ mha_ssh_user }}"
+    group: "{{ mha_ssh_user }}"
+    mode: 0755
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_master_host.split() }}"
+    - "{{ mysql_replica_host.split() }}"

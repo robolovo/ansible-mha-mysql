@@ -1,96 +1,13 @@
 ---
-  - name: Copy file with owner and permissions
-    copy:
-      src: /home/user/mysql-8.0.31.tar
-      dest: /home/user/mysql-8.0.31.tar
-      owner: root
-      group: root
-      mode: '0644'
+- ansible.builtin.include_tasks: variables.yml
 
-  - name: Unarchive mysql.tar
-    unarchive:
-      src: /home/user/mysql-8.0.31.tar
-      dest: /home/user/
-      remote_src: true
+- ansible.builtin.include_tasks: setup-RedHat.yml
+  when: ansible_os_family == 'RedHat'
 
-  - name: Install mysql RPMs
-    yum:
-      name: "{{ item }}"
-      state: present
-    loop:
-      - /home/user/mysql-community-common-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-client-plugins-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-embedded-compat-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-debuginfo-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-libs-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-libs-compat-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-client-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-devel-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-icu-data-files-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-server-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-server-debug-8.0.31-1.el7.aarch64.rpm
-      - /home/user/mysql-community-test-8.0.31-1.el7.aarch64.rpm
-
-  - name: Start mysql
-    systemd:
-      state: started
-      name: mysqld
-      enabled: true
-    become: yes
-
-  - name: Change root password
-    shell: |
-      MYSQL_TEMP_PASSWORD=$(grep 'temporary password' /var/log/mysqld.log | awk '{print $13}')
-      mysql -u root -p${MYSQL_TEMP_PASSWORD} --connect-expired-password -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password by '{{ mysql_root_password }}'"
-    ignore_errors: yes
-
-  - name: Create mysql base directories
-    shell: |
-      mkdir -p {{ mysql_base_dir }}/data
-      mkdir -p {{ mysql_base_dir }}/log
-      mkdir -p {{ mysql_base_dir }}/run
-      chown -R mysql:mysql {{ mysql_base_dir }}
-      cp -R -p /var/lib/mysql/. {{ mysql_base_dir }}/data
-
-  - name: Inject mysql config
-    template:
-      src: my.cnf.j2
-      dest: /etc/my.cnf
-
-  - name: Set server id
-    include_tasks: helper.yml
-    when: inventory_hostname == item
-    with_items: "{{ ansible_play_hosts }}"
-    tags:
-      - server-id
-
-  - name: Restart mysql
-    systemd:
-      state: restarted
-      name: mysqld
-    become: yes
-
-  - name: Create replica user
-    when: inventory_hostname == item
-    with_items:
-      - "{{ mysql_master_host.split() }}"
-      - "{{ mysql_replica_host.split() }}"
-    shell: |
-      CREATED="$(mysql -u root -p{{ mysql_root_password }} -se "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '{{ mysql_mha_username }}')")"
-      if [[ $CREATED -eq 0 ]]; then
-          mysql -u root -p{{ mysql_root_password }} -e "CREATE USER '{{ mysql_mha_username }}'@'{{ mysql_mha_cidr }}' IDENTIFIED BY '{{ mysql_mha_password }}'"
-      fi
-      mysql -u root -p{{ mysql_root_password }} -e "GRANT ALL ON *.* TO '{{ mysql_mha_username }}'@'{{ mysql_mha_cidr }}';FLUSH PRIVILEGES;"
-
-  - name: Set secondary replication
-    when: inventory_hostname == item
-    with_items: "{{ mysql_replica_host.split() }}"
-    shell: |
-      mysql -u root -p{{ mysql_root_password }} -e "RESET MASTER"
-      mysql -u root -p{{ mysql_root_password }} -e "SET GLOBAL read_only=1"
-
-      IFS=$'\n' read -rd '' -a array <<< "$(mysql -h {{ mysql_master_host }} -u {{ mysql_mha_username }} -p{{ mysql_mha_password }} -e "SHOW MASTER STATUS\G" | awk '/(File:|Position:)/{ print $2 }')" || true
-      MASTER_LOG_FILE="${array[0]}"
-      MASTER_LOG_POS="${array[1]}"
-
-      mysql -u root -p{{ mysql_root_password }} -e "CHANGE REPLICATION SOURCE TO SOURCE_HOST='{{ mysql_master_host }}', SOURCE_PORT=3306, SOURCE_USER='{{ mysql_mha_username }}', SOURCE_PASSWORD='{{ mysql_mha_password }}', SOURCE_LOG_FILE='${MASTER_LOG_FILE}', SOURCE_LOG_POS=${MASTER_LOG_POS};START SLAVE;"
+- ansible.builtin.include_tasks: configure.yml
+- ansible.builtin.include_tasks: replication-server-id.yml
+  when: inventory_hostname == item
+  with_items: "{{ ansible_play_hosts }}"
+  tags:
+    - server-id
+- ansible.builtin.include_tasks: replication.yml

@@ -1,0 +1,38 @@
+---
+- name: Copy mysql.tar
+  ansible.builtin.copy:
+    src: /home/user/mysql-8.0.31.tar
+    dest: /home/user/mysql-8.0.31.tar
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Unarchive mysql.tar
+  ansible.builtin.unarchive:
+    src: /home/user/mysql-8.0.31.tar
+    dest: /home/user/
+    remote_src: true
+
+- name: Install mysql rpms
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - /home/user/mysql-community-common-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-client-plugins-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-embedded-compat-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-debuginfo-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-libs-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-libs-compat-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-client-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-devel-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-icu-data-files-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-server-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-server-debug-8.0.31-1.el7.aarch64.rpm
+    - /home/user/mysql-community-test-8.0.31-1.el7.aarch64.rpm
+
+#- name: Ensure MySQL packages are installed.
+#  ansible.builtin.yum:
+#    name: "{{ mysql_packages }}"
+#    state: present
+#  register: mysql_install_packages
