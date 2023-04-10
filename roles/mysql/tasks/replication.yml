@@ -34,6 +34,9 @@
     - "{{ mysql_replica_host.split() }}"
   tags: ['skip_ansible_galaxy']
 
+- debug:
+    var: master
+
 - name: Configure replication on the slave
   mysql_replication:
     mode: changeprimary
