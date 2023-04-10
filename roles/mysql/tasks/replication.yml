@@ -31,7 +31,7 @@
   register: master
   when: inventory_hostname == item
   with_items:
-    - "{{ mysql_replica_host.split() }}"
+    - "{{ mysql_master_host.split() }}"
   tags: ['skip_ansible_galaxy']
 
 - debug:
