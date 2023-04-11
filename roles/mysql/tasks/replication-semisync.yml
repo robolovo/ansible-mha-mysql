@@ -12,6 +12,8 @@
     - mysql_plugins.stdout.find('rpl_semi_sync_master') == -1
   with_items:
     - "{{ mysql_master_host.split() }}"
+  tags:
+    - mysql-semisync
 
 - name: Install the semisync slave plugin
   ansible.builtin.command: |
@@ -21,6 +23,8 @@
     - mysql_plugins.stdout.find('rpl_semi_sync_slave') == -1
   with_items:
     - "{{ mysql_replica_host.split() }}"
+  tags:
+    - mysql-semisync
 
 - name: Enable the semisync master plugin
   ini_file:
@@ -28,6 +32,8 @@
     section: mysqld
     option: rpl_semi_sync_master_enabled
     value: 1
+  tags:
+    - mysql-semisync
 
 - name: Enable the semisync slave plugin
   ini_file:
@@ -35,6 +41,8 @@
     section: mysqld
     option: rpl_semi_sync_slave_enabled
     value: 1
+  tags:
+    - mysql-semisync
 
 - name: Set the semisync master timeout
   ini_file:
@@ -42,8 +50,12 @@
     section: mysqld
     option: rpl_semi_sync_master_timeout
     value: 10000
+  tags:
+    - mysql-semisync
 
 - name: Restart the mysql service
   ansible.builtin.service:
     name: mysqld
     state: restarted
+  tags:
+    - mysql-semisync
