@@ -3,8 +3,6 @@
   ansible.builtin.template:
     src: mha.cnf.j2
     dest: "{{ mha_conf_path }}"
-  notify:
-    - Start mha manager
 
 - name: Copy mhamanager.service mhamanager service
   ansible.builtin.template:
