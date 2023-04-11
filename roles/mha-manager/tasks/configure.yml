@@ -5,3 +5,12 @@
     dest: "{{ mha_conf_path }}"
   notify:
     - Start mha manager
+
+- name: Copy mhamanager.service mhamanager service
+  ansible.builtin.template:
+    src: mhamanager.service.j2
+    dest: /etc/systemd/system/mhamanager.service
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true

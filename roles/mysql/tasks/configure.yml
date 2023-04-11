@@ -26,6 +26,9 @@
     enabled: true
   register: mysql_service_configuration
 
+- debug:
+    var: mysql_service_configuration
+
 - name: Extract mysql temporary password
   ansible.builtin.shell: |
     echo $(grep 'temporary password' /mysql/log/err-mysql.log | awk '{print $13}')

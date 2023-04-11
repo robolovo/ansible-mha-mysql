@@ -1,0 +1,13 @@
+[Unit]
+Description=MHA manager
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=masterha_manager --conf={{ mha_conf_path }}
+Restart=no
+User=mha
+Group=mha
+
+[Install]
+WantedBy=multi-user.target

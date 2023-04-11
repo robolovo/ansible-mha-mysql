@@ -1,0 +1,88 @@
+---
+- name: Create proxysql base directory
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: proxysql
+    group: proxysql
+    mode: 0755
+  loop:
+    - "{{ proxysql_base_dir }}/data"
+    - "{{ proxysql_base_dir }}/log"
+
+- name: Get ip address
+  ansible.builtin.shell: |
+    echo $(ifconfig "$1" | grep -F "inet " | awk '{print $2}')
+  register: ip_address
+  check_mode: no
+
+- name: Create proxysql monitoring user
+  mysql_user:
+    login_host: "{{ mysql_master_host }}"
+    login_user: "{{ mysql_mha_username }}"
+    login_password: "{{ mysql_mha_password }}"
+    host: "{{ ip_address.stdout }}"
+    name: "{{ proxysql_mysql_monitor_username }}"
+    password: "{{ proxysql_mysql_monitor_password }}"
+    priv: "*.*:USAGE,REPLICATION CLIENT,GRANT"
+    state: present
+
+- name: Create proxysql application user
+  mysql_user:
+    login_host: "{{ mysql_master_host }}"
+    login_user: "{{ mysql_mha_username }}"
+    login_password: "{{ mysql_mha_password }}"
+    host: "{{ ip_address.stdout }}"
+    name: "{{ proxysql_mysql_username }}"
+    password: "{{ proxysql_mysql_password }}"
+    priv: "*.*:SELECT,DELETE,UPDATE,EXECUTE,INSERT,DROP,ALTER,CREATE,REFERENCES,INDEX,GRANT"
+    state: present
+
+- name: Ensure mysql default schema is present for proxysql
+  mysql_db:
+    name: "{{ proxysql_mysql_default_schema }}"
+    login_host: "{{ mysql_master_host }}"
+    login_user: "{{ mysql_mha_username }}"
+    login_password: "{{ mysql_mha_password }}"
+    state: present
+
+- name: Get num threads
+  shell: |
+    NUM_CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
+    echo $((NUM_CORES<=4 ? 4:NUM_CORES ))
+  register: num_threads
+
+- name: Get mysql version
+  shell: |
+    echo $(mysql -h {{ mysql_master_host }} -u {{ mysql_mha_username }} -p{{ mysql_mha_password }} -se "select version()" | awk '{print $1}')
+  register: mysql_version
+
+- name: Copy proxysql.cnf proxysql configuration
+  ansible.builtin.template:
+    src: proxysql.cnf.j2
+    dest: /etc/proxysql.cnf
+
+- name: Copy proxysql.service proxysql service
+  ansible.builtin.template:
+    src: proxysql.service.j2
+    dest: /etc/systemd/system/proxysql.service
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Ensure proxysql is started and enabled on boot
+  ansible.builtin.service:
+    name: proxysql
+    state: started
+    enabled: true
+  become: yes
+  become_user: proxysql
+  register: proxysql_service_configuration
+
+- debug:
+  var: proxysql_service_configuration
+
+#- name: Start proxysql
+#  ansible.builtin.shell: |
+#    /usr/bin/proxysql --idle-threads -c /etc/proxysql.cnf.j2
