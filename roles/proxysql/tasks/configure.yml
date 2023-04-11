@@ -3,8 +3,8 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    owner: proxysql
-    group: proxysql
+    owner: root
+    group: root
     mode: 0755
   loop:
     - "{{ proxysql_base_dir }}/data"
