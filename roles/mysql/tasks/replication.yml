@@ -16,8 +16,9 @@
     - "{{ mysql_replica_host.split() }}"
 
 - name: Set readonly secondary replication
-  ansible.builtin.shell: |
-    mysql -u root -p{{ mysql_root_password }} -e "SET GLOBAL read_only=1"
+  ansible.builtin.template:
+    src: read_only.cnf
+    dest: /etc/my.cnf.d/read_only.cnf
   when: inventory_hostname == item
   with_items: "{{ mysql_replica_host.split() }}"
 
