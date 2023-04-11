@@ -6,8 +6,9 @@
 
 - ansible.builtin.include_tasks: configure.yml
 - ansible.builtin.include_tasks: replication-server-id.yml
-  when: inventory_hostname == item
-  with_items: "{{ ansible_play_hosts }}"
   tags:
     - server-id
 - ansible.builtin.include_tasks: replication.yml
+- ansible.builtin.include_tasks: replication-semisync.yml
+  tags:
+    - mysql-semisync

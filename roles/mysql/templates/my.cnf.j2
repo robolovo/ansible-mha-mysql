@@ -6,6 +6,7 @@ character-set-server = utf8mb4
 collation-server = utf8mb4_0900_ai_ci
 basedir = {{ mysql_base_dir }}
 datadir = {{ mysql_base_dir }}/data
+plugin-dir = /usr/lib64/mysql/plugin
 relay-log = {{ mysql_base_dir }}/data/mysql-relay-bin
 relay-log-info-file = {{ mysql_base_dir }}/data/mysql-relay-log.info
 relay_log_purge = 0

@@ -1,0 +1,49 @@
+---
+- name: Get a list of the mysql plugins that are installed
+  ansible.builtin.command: |
+    mysql -u root -p'{{ mysql_root_password }}' --connect-expired-password -e 'SHOW PLUGINS;'
+  register: mysql_plugins
+
+- name: Install the semisync master plugin
+  ansible.builtin.command: |
+    mysql -u root -p'{{ mysql_root_password }}' --connect-expired-password -e "INSTALL PLUGIN rpl_semi_sync_master SONAME 'semisync_master.so';"
+  when:
+    - inventory_hostname == item
+    - mysql_plugins.stdout.find('rpl_semi_sync_master') == -1
+  with_items:
+    - "{{ mysql_master_host.split() }}"
+
+- name: Install the semisync slave plugin
+  ansible.builtin.command: |
+    mysql -u root -p'{{ mysql_root_password }}' --connect-expired-password -e "INSTALL PLUGIN rpl_semi_sync_slave SONAME 'semisync_slave.so';"
+  when:
+    - inventory_hostname == item
+    - mysql_plugins.stdout.find('rpl_semi_sync_slave') == -1
+  with_items:
+    - "{{ mysql_replica_host.split() }}"
+
+- name: Enable the semisync master plugin
+  ini_file:
+    dest: /etc/my.cnf
+    section: mysqld
+    option: rpl_semi_sync_master_enabled
+    value: 1
+
+- name: Enable the semisync slave plugin
+  ini_file:
+    dest: /etc/my.cnf
+    section: mysqld
+    option: rpl_semi_sync_slave_enabled
+    value: 1
+
+- name: Set the semisync master timeout
+  ini_file:
+    dest: /etc/my.cnf
+    section: mysqld
+    option: rpl_semi_sync_master_timeout
+    value: 10000
+
+- name: Restart the mysql service
+  ansible.builtin.service:
+    name: mysqld
+    state: restarted
