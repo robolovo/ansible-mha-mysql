@@ -3,11 +3,3 @@
   when: ansible_os_family == 'RedHat'
 
 - ansible.builtin.include_tasks: configure.yml
-
-#  systemd로 실행하면 에러가 발생해서 직접 실행
-#  - name: Start proxysql
-#    systemd:
-#      state: started
-#      name: proxysql
-#      enabled: true
-#    become: yes
