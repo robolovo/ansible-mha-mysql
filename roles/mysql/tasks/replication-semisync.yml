@@ -34,15 +34,11 @@
     section: mysqld
     option: rpl_semi_sync_master_enabled
     value: 1
-  tags:
-    - mysql-semisync
-
-- name: Enable the semisync slave plugin
-  ini_file:
-    dest: /etc/my.cnf
-    section: mysqld
-    option: rpl_semi_sync_slave_enabled
-    value: 1
+  when:
+    - inventory_hostname == item
+    - mysql_plugins.stdout.find('rpl_semi_sync_master') == -1
+  with_items:
+    - "{{ mysql_master_host.split() }}"
   tags:
     - mysql-semisync
 
@@ -52,6 +48,24 @@
     section: mysqld
     option: rpl_semi_sync_master_timeout
     value: 10000
+  when:
+    - inventory_hostname == item
+    - mysql_plugins.stdout.find('rpl_semi_sync_master') == -1
+  with_items:
+    - "{{ mysql_master_host.split() }}"
+  tags:
+    - mysql-semisync
+
+- name: Enable the semisync slave plugin
+  ini_file:
+    dest: /etc/my.cnf
+    section: mysqld
+    option: rpl_semi_sync_slave_enabled
+    value: 1
+  when:
+    - inventory_hostname == item
+  with_items:
+    - "{{ mysql_replica_host.split() }}"
   tags:
     - mysql-semisync
 
