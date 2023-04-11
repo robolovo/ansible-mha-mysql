@@ -6,8 +6,8 @@ After=network.target
 Type=simple
 ExecStart=masterha_manager --conf={{ mha_conf_path }}
 Restart=no
-User=mha
-Group=mha
+User=root
+Group=root
 
 [Install]
 WantedBy=multi-user.target

@@ -81,7 +81,7 @@
   register: proxysql_service_configuration
 
 - debug:
-  var: proxysql_service_configuration
+    var: proxysql_service_configuration
 
 #- name: Start proxysql
 #  ansible.builtin.shell: |

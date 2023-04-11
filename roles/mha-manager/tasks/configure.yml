@@ -14,3 +14,15 @@
 - name: Reload systemd daemon
   ansible.builtin.systemd:
     daemon_reload: true
+
+- name: Ensure mhamanager is started and enabled on boot
+  ansible.builtin.service:
+    name: mhamanager
+    state: started
+    enabled: true
+  become: yes
+  become_user: root
+  register: mhamanager_service_configuration
+
+- debug:
+    var: mhamanager_service_configuration
