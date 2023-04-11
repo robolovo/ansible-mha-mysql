@@ -1,4 +1,16 @@
 ---
+- hosts: localhost
+  tasks:
+    - name: Ensure server_id.ini file exists
+      ansible.builtin.shell: |
+        cat <<EOF | tee /home/server_id.ini
+        0
+        EOF
+      check_mode: no
+      run_once: true
+      delegate_to: localhost
+      tags:
+        - server-id
 
 - hosts: mha_nodes
   remote_user: root

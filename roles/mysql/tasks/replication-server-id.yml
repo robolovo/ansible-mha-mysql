@@ -1,14 +1,4 @@
 ---
-- name: Ensure server_id.ini file exists
-  ansible.builtin.shell: |
-    cat <<EOF | tee /home/server_id.ini
-    0
-    EOF
-  check_mode: no
-  delegate_to: localhost
-  tags:
-    - server-id
-
 - name: Get last server id
   ansible.builtin.shell: |
     cat /home/server_id.ini
