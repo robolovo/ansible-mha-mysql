@@ -77,7 +77,7 @@
     state: started
     enabled: true
   become: yes
-  become_user: proxysql
+  become_user: root
   register: proxysql_service_configuration
 
 - debug:
