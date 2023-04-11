@@ -3,6 +3,8 @@
   ansible.builtin.command: |
     mysql -u root -p'{{ mysql_root_password }}' --connect-expired-password -e 'SHOW PLUGINS;'
   register: mysql_plugins
+  tags:
+    - mysql-semisync
 
 - name: Install the semisync master plugin
   ansible.builtin.command: |
