@@ -2,11 +2,11 @@
 - name: Install mha node
   ansible.builtin.get_url:
     url: "https://github.com/yoshinorim/mha4mysql-node/releases/download/v0.58/mha4mysql-node-0.58-0.el7.centos.noarch.rpm"
-    dest: /home/user/mha4mysql-node.rpm
-    mode: '0660'
+    dest: /home/mha4mysql-node.rpm
+    mode: 0660
 
 - name: Install a package
   ansible.builtin.yum:
     name:
-      - /home/user/mha4mysql-node.rpm
+      - /home/mha4mysql-node.rpm
     state: present

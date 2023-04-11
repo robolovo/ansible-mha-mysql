@@ -1,6 +1,11 @@
 ---
 - name: Generate ssh key
-  ansible.builtin.command: "ssh-keygen -b 2048 -t rsa -f ./mhaKey -q -N ''"
+  ansible.builtin.shell: |
+    if test -f "mhaKey" && test -f "mhaKey.pub"; then
+      echo "mhaKey already exists"
+    else
+      ssh-keygen -b 2048 -t rsa -f ./mhaKey -q -N ''
+    fi
   connection: local
   ignore_errors: true
   run_once: true
@@ -8,7 +13,7 @@
 - name: Read publickey
   ansible.builtin.command: "cat ./mhaKey.pub"
   connection: local
-  register: pub_key
+  register: mha_public_key
   run_once: true
 
 - name: Create mha directory
@@ -22,7 +27,7 @@
 - name: Copy publickey to authorized_keys file
   ansible.builtin.lineinfile:
     dest: ~/.ssh/authorized_keys
-    line: "{{ pub_key.stdout }}"
+    line: "{{ mha_public_key.stdout }}"
 
 - name: Copy privatekey to remote server
   ansible.builtin.copy:
@@ -30,7 +35,7 @@
     dest: "{{ mha_base_path }}/mhaKey"
     owner: root
     group: root
-    mode: '0600'
+    mode: 0600
 
 - name: Copy publickey to remote server
   copy:
@@ -38,4 +43,4 @@
     dest: "{{ mha_base_path }}/mhaKey.pub"
     owner: root
     group: root
-    mode: '0600'
+    mode: 0600
