@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=masterha_manager --conf={{ mha_conf_path }}
-Restart=no
+ExecStart=/usr/bin/masterha_manager --conf=/mha/mha.cnf
+Restart=always
 User=root
 Group=root
 
