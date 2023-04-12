@@ -1,0 +1,6 @@
+[mysqld]
+read_only
+relay-log = relay-bin
+relay-log-index = relay-bin.index
+relay-log-info-file = {{ mysql_base_dir }}/data/mysql-relay-log.info
+relay_log_purge = 0

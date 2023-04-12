@@ -15,12 +15,21 @@
     - "{{ mysql_master_host.split() }}"
     - "{{ mysql_replica_host.split() }}"
 
-- name: Set readonly secondary replication
+- name: Set master configuration
   ansible.builtin.template:
-    src: read_only.cnf
-    dest: /etc/my.cnf.d/read_only.cnf
+    src: my.master.cnf.j2
+    dest: /etc/my.cnf.d/my.master.cnf
   when: inventory_hostname == item
-  with_items: "{{ mysql_replica_host.split() }}"
+  with_items:
+    - "{{ mysql_master_host.split() }}"
+
+- name: Set replica configuration
+  ansible.builtin.template:
+    src: my.replica.cnf.j2
+    dest: /etc/my.cnf.d/my.replica.cnf
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_replica_host.split() }}"
 
 - name: Check master replication status
   mysql_replication:
