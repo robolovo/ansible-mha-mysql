@@ -1,11 +1,27 @@
 ---
-- name: Copy my.cnf mysql configuration
+- name: Set my.cnf mysql global configuration
   ansible.builtin.template:
     src: my.cnf.j2
     dest: /etc/my.cnf
     owner: root
     group: root
     mode: 0644
+
+- name: Set master configuration
+  ansible.builtin.template:
+    src: my.master.cnf.j2
+    dest: /etc/my.cnf.d/my.master.cnf
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_master_host.split() }}"
+
+- name: Set replica configuration
+  ansible.builtin.template:
+    src: my.replica.cnf.j2
+    dest: /etc/my.cnf.d/my.replica.cnf
+  when: inventory_hostname == item
+  with_items:
+    - "{{ mysql_replica_host.split() }}"
 
 - name: Create directories if it does not exist
   ansible.builtin.file:

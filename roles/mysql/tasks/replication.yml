@@ -15,27 +15,6 @@
     - "{{ mysql_master_host.split() }}"
     - "{{ mysql_replica_host.split() }}"
 
-- name: Set master configuration
-  ansible.builtin.template:
-    src: my.master.cnf.j2
-    dest: /etc/my.cnf.d/my.master.cnf
-  when: inventory_hostname == item
-  with_items:
-    - "{{ mysql_master_host.split() }}"
-
-- name: Set replica configuration
-  ansible.builtin.template:
-    src: my.replica.cnf.j2
-    dest: /etc/my.cnf.d/my.replica.cnf
-  when: inventory_hostname == item
-  with_items:
-    - "{{ mysql_replica_host.split() }}"
-
-- name: Restart mysqld
-  ansible.builtin.service:
-    name: mysqld
-    state: restarted
-
 - name: Check master replication status
   mysql_replication:
     mode: getprimary
