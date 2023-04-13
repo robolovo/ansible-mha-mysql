@@ -19,6 +19,16 @@
     - "{{ mysql_base_dir }}/log"
     - "{{ mysql_base_dir }}/run"
 
+- name: Ensure mysqld is started and enabled on boot
+  ansible.builtin.service:
+    name: mysqld
+    state: started
+    enabled: true
+  register: mysql_service_configuration
+
+- debug:
+    var: mysql_service_configuration
+
 - name: Extract mysql temporary password
   ansible.builtin.shell: |
     echo $(grep 'temporary password' /mysql/log/mysqld.log | awk '{print $13}')

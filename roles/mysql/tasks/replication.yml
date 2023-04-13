@@ -31,15 +31,10 @@
   with_items:
     - "{{ mysql_replica_host.split() }}"
 
-- name: Ensure mysqld is started and enabled on boot
+- name: Restart mysqld
   ansible.builtin.service:
     name: mysqld
-    state: started
-    enabled: true
-  register: mysql_service_configuration
-
-- debug:
-    var: mysql_service_configuration
+    state: restarted
 
 - name: Check master replication status
   mysql_replication:
