@@ -6,6 +6,7 @@ datadir = {{ mysql_base_dir }}/data
 plugin-dir = /usr/lib64/mysql/plugin
 socket = {{ mysql_base_dir }}/data/mysql.sock
 pid-file = {{ mysql_base_dir }}/run/mysqld.pid
+skip-name-resolve
 
 default_authentication_plugin = mysql_native_password
 character-set-server = utf8mb4
