@@ -85,18 +85,18 @@ mysql_query_rules:
 
 mysql_servers=(
   {
-    address="172.17.02"
+    address="{{ mysql_master_host }}"
     port=3306
     hostgroup=1
   },
+{% set repl_hosts = mysql_replica_host.split(' ') %}
+{% for repl_host in repl_hosts %}
   {
-    address="172.17.04"
+    address="{{ repl_host }}"
     port=3306
     hostgroup=2
   },
-  {
-    address="172.17.05"
-    port=3306
-    hostgroup=2
-  }
+{% endfor %}
 )
+
+
