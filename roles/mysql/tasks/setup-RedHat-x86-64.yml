@@ -1,10 +1,15 @@
 ---
+- name: Install wget
+  ansible.builtin.yum:
+    name: wget
+    state: present
+
 - name: Download mysql 8.0.31 rpm bundle
   ansible.builtin.shell: |
     if test -f "/home/mysql-8.0.31.tar"; then
       echo "mysql-8.0.31.tar already exists"
     else
-      wget https://downloads.mysql.com/archives/get/p/23/file/mysql-8.0.31-1.el9.x86_64.rpm-bundle.tar -O /home/mysql-8.0.31.tar
+      wget https://downloads.mysql.com/archives/get/p/23/file/mysql-8.0.31-1.el7.x86_64.rpm-bundle.tar -O /home/mysql-8.0.31.tar
     fi
 
 - name: Unarchive mysql.tar
@@ -16,12 +21,12 @@
 - name: Install mysql rpms
   ansible.builtin.shell: |
     if ! (yum list installed | grep "mysql-community-server"); then
-      yum install -y mysql-community-*.rpm
+      yum install -y /home/mysql-community-*.rpm
     else
       exit 0
     fi
 
 - name: Install mysql rpms
   ansible.builtin.yum:
-    name: "MySQL-python"
+    name: MySQL-python
     state: present

@@ -47,7 +47,7 @@
 
 - name: Extract mysql temporary password
   ansible.builtin.shell: |
-    echo $(grep 'temporary password' /mysql/log/mysqld.log | awk '{print $13}')
+    echo $(grep 'temporary password' {{ mysql_base_dir }}/log/mysqld.log | awk '{print $13}')
   register: mysql_temp_password
   check_mode: no
 

@@ -15,7 +15,7 @@ mha_base_path: /mnt/mha
 mha_conf_path: /mnt/mha/mha.cnf
 mha_ssh_user: root
 
-proxysql_base_dir: /proxysql
+proxysql_base_dir: /mnt/proxysql
 proxysql_rest_api_enabled: true
 proxysql_rest_api_port: 10080
 proxysql_admin_username: "admin"

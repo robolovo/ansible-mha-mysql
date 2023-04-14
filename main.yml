@@ -13,7 +13,8 @@
         - server-id
 
 - hosts: mha_nodes
-  remote_user: root
+  become: yes
+  remote_user: ec2-user
   roles:
     - ssh
     - mysql
@@ -21,7 +22,8 @@
     - xtrabackup
 
 - hosts: mha_manager
-  remote_user: root
+  become: yes
+  remote_user: ec2-user
   roles:
     - ssh
     - mysql
