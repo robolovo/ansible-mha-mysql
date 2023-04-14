@@ -1,17 +1,10 @@
 ---
-- name: Copy percona xtrabackup
-  ansible.builtin.copy:
-    src: percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
-    dest: /home/percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
-    owner: root
-    group: root
-    mode: '0644'
+- ansible.builtin.include_tasks: setup-RedHat-aarch64.yml
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_architecture == 'aarch64'
 
-- name: Install xtrabackup rpms
-  ansible.builtin.yum:
-    name: "{{ item }}"
-    state: present
-  loop:
-    - socat
-    - pigz
-    - /home/percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
+- ansible.builtin.include_tasks: setup-RedHat-x86-64.yml
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_architecture == 'x86_64'

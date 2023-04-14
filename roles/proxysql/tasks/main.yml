@@ -1,5 +1,12 @@
 ---
-- ansible.builtin.include_tasks: setup-RedHat.yml
-  when: ansible_os_family == 'RedHat'
+- ansible.builtin.include_tasks: setup-RedHat-aarch64.yml
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_architecture == 'aarch64'
+
+- ansible.builtin.include_tasks: setup-RedHat-x86-64.yml
+  when:
+    - ansible_os_family == 'RedHat'
+    - ansible_architecture == 'x86_64'
 
 - ansible.builtin.include_tasks: configure.yml

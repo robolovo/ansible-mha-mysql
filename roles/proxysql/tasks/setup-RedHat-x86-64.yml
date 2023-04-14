@@ -1,0 +1,12 @@
+---
+- name: Install proxysql
+  ansible.builtin.get_url:
+    url: "https://github.com/sysown/proxysql/releases/download/v2.5.1/proxysql-2.5.1-1-centos7.x86_64.rpm"
+    dest: /home/proxysql-2.5.1-1.rpm
+    mode: 0660
+
+- name: Install a package
+  ansible.builtin.yum:
+    name:
+      - /home/proxysql-2.5.1-1.rpm
+    state: present

@@ -1,0 +1,37 @@
+---
+- name: Download mysql 8.0.31 rpm bundle
+  ansible.builtin.shell: |
+    if test -f "/home/mysql-8.0.31.tar"; then
+      echo "mysql-8.0.31.tar already exists"
+    else
+      wget https://downloads.mysql.com/archives/get/p/23/file/mysql-8.0.31-1.el7.x86_64.rpm-bundle.tar -O /home/mysql-8.0.31.tar
+    fi
+
+- name: Unarchive mysql.tar
+  ansible.builtin.unarchive:
+    src: /home/mysql-8.0.31.tar
+    dest: /home/
+    remote_src: true
+
+- name: Install mysql rpms
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - /home/mysql-community-common-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-client-plugins-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-embedded-compat-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-debuginfo-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-libs-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-libs-compat-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-client-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-devel-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-icu-data-files-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-server-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-server-debug-8.0.31-1.el7.x86_64.rpm
+    - /home/mysql-community-test-8.0.31-1.el7.x86_64.rpm
+
+- name: Install mysql rpms
+  ansible.builtin.yum:
+    name: "MySQL-python"
+    state: present

@@ -1,0 +1,17 @@
+---
+- name: Copy percona xtrabackup
+  ansible.builtin.copy:
+    src: percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
+    dest: /home/percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Install xtrabackup rpms
+  ansible.builtin.yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - socat
+    - pigz
+    - /home/percona-xtrabackup-2.3.6-1.el7.aarch64.rpm
