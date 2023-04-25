@@ -3,84 +3,86 @@ errorlog="{{ proxysql_base_dir }}/log/proxysql.log"
 
 admin_variables=
 {
-    admin_credentials="admin:admin;{{ proxysql_admin_username }}:{{ proxysql_admin_password }}"
-	mysql_ifaces="0.0.0.0:{{ proxysql_admin_port }}"
-	restapi_enabled={{ proxysql_rest_api_enabled }}
-	restapi_port={{ proxysql_rest_api_port }}
+  admin_credentials="admin:admin;{{ proxysql_admin_username }}:{{ proxysql_admin_password }}"
+  mysql_ifaces="0.0.0.0:{{ proxysql_admin_port }}"
+  restapi_enabled={{ proxysql_rest_api_enabled }}
+  restapi_port={{ proxysql_rest_api_port }}
 }
+
 mysql_variables=
 {
-	threads=4
-	interfaces="0.0.0.0:{{ proxysql_mysql_port }}"
-	default_schema="{{ proxysql_mysql_default_schema }}"
-	server_version="8.0.31"
-	monitor_username="{{ proxysql_mysql_monitor_username }}"
-	monitor_password="{{ proxysql_mysql_monitor_password }}"
-	default_charset="utf8mb4"
-	default_collation_connection="utf8mb4_0900_ai_ci"
-	auditlog_filename="{{ proxysql_base_dir }}/log/auditlog"
-	eventslog_filename="{{ proxysql_base_dir }}/log/querylog"
-	eventslog_default_log=1 #all event
-	eventslog_format=2 #json
+  threads=4
+  interfaces="0.0.0.0:{{ proxysql_mysql_port }}"
+  default_schema="{{ proxysql_mysql_default_schema }}"
+  server_version="8.0.31"
+  monitor_username="{{ proxysql_mysql_monitor_username }}"
+  monitor_password="{{ proxysql_mysql_monitor_password }}"
+  default_charset="utf8mb4"
+  default_collation_connection="utf8mb4_0900_ai_ci"
+  auditlog_filename="{{ proxysql_base_dir }}/log/auditlog"
+  eventslog_filename="{{ proxysql_base_dir }}/log/querylog"
+  eventslog_default_log=1 #all event
+  eventslog_format=2 #json
 }
+
 mysql_users=(
-	{
-		username = "{{ proxysql_mysql_username }}"
-		password = "{{ proxysql_mysql_password }}"
-		active = 1
-		default_hostgroup = 1
-		max_connections=1000
-	}
-
+  {
+    username = "{{ proxysql_mysql_username }}"
+    password = "{{ proxysql_mysql_password }}"
+    active = 1
+    default_hostgroup = 1
+    max_connections=1000
+  }
 )
-mysql_replication_hostgroups=(
 
-    {
-        writer_hostgroup=1
-        reader_hostgroup=2
-        comment="Default"
-   }
+mysql_replication_hostgroups=(
+  {
+    writer_hostgroup=1
+    reader_hostgroup=2
+    comment="Default"
+  }
 )
 
 mysql_query_rules:
 (
-	{
-		rule_id=1
-		active=1
-		apply=1
-		match_digest="^SELECT.*FOR UPDATE"
-		destination_hostgroup=1
-	},
-	{	rule_id=2
-		active=1
-		apply=1
-		match_digest="^SELECT"
-		destination_hostgroup=2
-	},
-	{
-		rule_id=100
-		active=1
-		apply=1
-		match_digest="FROM .*PRIVILEGES"
-		schemaname="information_schema"
-		error_msg="Access Denied"
-	},
-	{
-		rule_id=101
-		active=1
-		apply=1
-		match_digest="FROM .*"
-		schemaname="sys"
-		error_msg="Access Denied"
-	},
-	{
-		rule_id=102
-		active=1
-		apply=1
-		match_digest="FROM .*"
-		schemaname="mysql"
-		error_msg="Access Denied"
-	}
+  {
+	rule_id=1
+	active=1
+	apply=1
+	match_digest="^SELECT.*FOR UPDATE"
+	destination_hostgroup=1
+  },
+  {
+    rule_id=2
+	active=1
+	apply=1
+	match_digest="^SELECT"
+	destination_hostgroup=2
+  },
+  {
+	rule_id=100
+	active=1
+	apply=1
+	match_digest="FROM .*PRIVILEGES"
+	schemaname="information_schema"
+	error_msg="Access Denied"
+  },
+  {
+	rule_id=101
+    active=1
+	apply=1
+	match_digest="FROM .*"
+	schemaname="sys"
+	error_msg="Access Denied"
+  },
+  {
+    rule_id=102
+	active=1
+	apply=1
+	match_digest="FROM .*"
+	schemaname="mysql"
+	error_msg="Access Denied"
+  }
 )
 
 mysql_servers=(
